@@ -56,5 +56,19 @@ class Dependency{
     }
 }
 
+class CycleEvent {
+    /** 
+     * @param {string} eventType 
+     * @param {string} label
+     * @param {number} cycle
+     * */
+    constructor(eventType, label, cycle) {
+        this.eventType = eventType;
+        this.label = label;
+        this.cycle = cycle;
+    }
+}
+
 module.exports.Op = Op;
 module.exports.Dependency = Dependency;
+module.exports.CycleEvent = CycleEvent;

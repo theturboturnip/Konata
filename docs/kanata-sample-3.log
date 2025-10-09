@@ -1,0 +1,223 @@
+Kanata	0004
+C=	-1
+C	1
+I	0	4	0
+L	0	1	(g:4,c0)\n
+S	0	0	Np
+I	1	8	0
+L	1	1	(g:8,c0)\n
+S	1	0	Np
+C	1
+V	Event1	LookAComment1
+S	0	1	stl
+E	0	0	Np
+S	0	0	F
+L	0	1	i-cache-miss\n
+L	0	2	i-cache-miss\n
+S	1	1	stl
+E	1	0	Np
+S	1	0	F
+C	12
+I	2	12	0
+L	2	1	(g:12,c0)\n
+S	2	0	Np
+I	3	16	0
+L	3	1	(g:16,c0)\n
+S	3	0	Np
+E	0	1	stl
+E	0	0	F
+S	0	0	F
+E	1	1	stl
+E	1	0	F
+S	1	0	F
+C	1
+S	2	1	stl
+E	2	0	Np
+S	2	0	F
+L	2	1	i-cache-miss\n
+L	2	2	i-cache-miss\n
+S	3	1	stl
+E	3	0	Np
+S	3	0	F
+E	0	0	F
+S	0	0	Pd
+L	0	1	optype:0b10 ALU-code:0b0\n
+L	0	2	optype:0b10 ALU-code:0b0\n
+E	1	0	F
+S	1	0	Pd
+L	1	1	optype:0b10 ALU-code:0b0\n
+L	1	2	optype:0b10 ALU-code:0b0\n
+C	1
+E	0	0	Pd
+S	0	0	Dc
+L	0	1	Br-pred-miss-id\n
+L	0	2	Br-pred-miss-id\n
+E	1	0	Pd
+S	1	0	Dc
+E	1	0	Dc
+R	1	0	1
+L	0	0	00001000: jal zero, 0x10
+L	1	0	00001004: jal zero, 0x0
+C	1
+I	4	20	0
+L	4	1	(g:20,c0)\n
+S	4	0	Np
+I	5	24	0
+L	5	1	(g:24,c0)\n
+S	5	0	Np
+E	2	1	stl
+E	2	0	F
+S	2	0	F
+E	2	0	F
+R	2	0	1
+E	3	1	stl
+E	3	0	F
+S	3	0	F
+E	3	0	F
+R	3	0	1
+E	0	0	Dc
+S	0	0	Rn
+C	1
+S	4	1	stl
+E	4	0	Np
+S	4	0	F
+L	4	1	i-cache-miss\n
+L	4	2	i-cache-miss\n
+S	5	1	stl
+E	5	0	Np
+S	5	0	F
+E	0	0	Rn
+S	0	0	Ds
+L	0	1	map:  = \nprev: \nIQ alloc: 0 
+L	0	2	map:  = \nprev: \nIQ alloc: 0 
+C	1
+E	0	0	Ds
+S	0	0	Sc
+C	1
+E	0	0	Sc
+S	0	0	Is
+C	1
+E	0	0	Is
+S	0	0	Rr
+C	1
+E	0	0	Rr
+S	0	0	X
+L	0	1	\nd:0x1004 = fu(a:0x1000, b:0x42004), alu:0b0000, op:0b010
+L	0	2	\nd:0x1004 = fu(a:0x1000, b:0x42004), alu:0b0000, op:0b010
+C	1
+E	0	0	X
+S	0	0	Rw
+C	1
+E	0	0	Rw
+S	0	0	Cm
+L	0	1	\nrelease: 
+L	0	2	\nrelease: 
+C	1
+E	0	0	Cm
+R	0	0	0
+C	20
+V	Event2	LookAComment2
+I	6	28	0
+L	6	1	(g:28,c0)\n
+S	6	0	Np
+I	7	32	0
+L	7	1	(g:32,c0)\n
+S	7	0	Np
+E	4	1	stl
+E	4	0	F
+S	4	0	F
+E	5	1	stl
+E	5	0	F
+S	5	0	F
+C	1
+S	6	1	stl
+E	6	0	Np
+S	6	0	F
+L	6	1	i-cache-miss\n
+L	6	2	i-cache-miss\n
+S	7	1	stl
+E	7	0	Np
+S	7	0	F
+E	4	0	F
+S	4	0	Pd
+L	4	1	optype:0b0 ALU-code:0b0\n
+L	4	2	optype:0b0 ALU-code:0b0\n
+E	5	0	F
+S	5	0	Pd
+L	5	1	optype:0b0 ALU-code:0b0\n
+L	5	2	optype:0b0 ALU-code:0b0\n
+C	1
+E	4	0	Pd
+S	4	0	Dc
+E	5	0	Pd
+S	5	0	Dc
+L	4	0	00001010: auipc a0, 0x0
+L	5	0	00001014: addi a0, a0, 0x90
+C	1
+E	4	0	Dc
+S	4	0	Rn
+E	5	0	Dc
+S	5	0	Rn
+C	1
+V	Event3	LookAComment
+V	Event1	LookASecondComment
+E	4	0	Rn
+S	4	0	Ds
+L	4	1	map: r10(p0),  = \nprev: r10(p42), \nIQ alloc: 1 
+L	4	2	map: r10(p0),  = \nprev: r10(p42), \nIQ alloc: 1 
+E	5	0	Rn
+S	5	0	Ds
+L	5	1	map: r10(p1),  = r10(p0), \nprev: r10(p0), \nIQ alloc: 2 
+L	5	2	map: r10(p1),  = r10(p0), \nprev: r10(p0), \nIQ alloc: 2 
+C	1
+E	4	0	Ds
+S	4	0	Sc
+E	5	0	Ds
+S	5	0	Sc
+C	1
+V	Event1	LookAComment
+V	Event2	LookASecondComment
+V	Event3	LookAComment
+V	Event4	LookASecondComment
+V	Event5	LookAComment
+V	Event6	LookASecondComment
+V	Event7	LookAComment
+V	Event8	LookASecondComment
+E	4	0	Sc
+S	4	0	Is
+C	1
+E	5	0	Sc
+S	5	0	Is
+E	4	0	Is
+S	4	0	Rr
+C	1
+E	5	0	Is
+S	5	0	Rr
+E	4	0	Rr
+S	4	0	X
+L	4	1	\nd:0x1010 = fu(a:0x1010, b:0x0), alu:0b0000, op:0b000
+L	4	2	\nd:0x1010 = fu(a:0x1010, b:0x0), alu:0b0000, op:0b000
+C	1
+E	5	0	Rr
+S	5	0	X
+L	5	1	\nd:0x10a0 = fu(a:0x1010, b:0x90), alu:0b0000, op:0b000
+L	5	2	\nd:0x10a0 = fu(a:0x1010, b:0x90), alu:0b0000, op:0b000
+E	4	0	X
+S	4	0	Rw
+C	1
+E	5	0	X
+S	5	0	Rw
+E	4	0	Rw
+S	4	0	Cm
+L	4	1	\nrelease: 
+L	4	2	\nrelease: 
+C	1
+E	4	0	Cm
+R	4	1	0
+E	5	0	Rw
+S	5	0	Cm
+L	5	1	\nrelease: p42, 
+L	5	2	\nrelease: p42, 
+C	1
+E	5	0	Cm
+R	5	2	0

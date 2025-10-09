@@ -84,6 +84,19 @@ An example of the lane feature can be seen by opening "docs/kanata-sample-2.log.
     C	1
     ```
 
+## V
+    V   EVENT_TYPE  LABEL
+
+* Creates an 'event', which is displayed behind all instructions in the current cycle.
+
+* Argument: 
+    * EVENT_TYPE: the event type, which determines the color
+    * LABEL: the event label, which is displayed on mouse over
+
+* Example: Create an Interrupt event with a comment indicating which type
+    ```
+    V	Interrupt   I/O Interrupt
+    ```
 
 ## I 
     I	INSN_ID_IN_FILE	INSN_ID_IN_SIM	THREAD_ID 
@@ -247,4 +260,7 @@ R	1	1	1       // Flush the instruction 1
 Dhrystone executed on [RSD](https://github.com/rsd-devel/rsd)
 ![kanata-sample-2](kanata-sample-2.png)
 
+## [kanata-sample-3.log](kanata-sample-3.log)
 
+Version of kanata-sample-2 that includes some example events.
+![kanata-sample-3](kanata-sample-3.png)

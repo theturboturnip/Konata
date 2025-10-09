@@ -113,6 +113,11 @@ class Konata{
         return this.parser_ ? this.parser_.getOpFromRID(rid, resolution) : null;
     }
 
+    // Returns a list of events associated with the given cycle
+    getCycleEvents(cycle, resolution=0){
+        return this.parser_ ? this.parser_.getCycleEvents(cycle, resolution) : null;
+    }
+
     get lastID(){
         return this.parser_ ? this.parser_.lastID : 0;
     }
@@ -127,6 +132,10 @@ class Konata{
 
     get stageLevelMap(){
         return this.parser_ ? this.parser_.stageLevelMap : null;
+    }
+
+    get cycleEventTypeMap(){
+        return this.parser_ ? this.parser_.cycleEventTypeMap : null;
     }
 
     // パイプライン中の統計を計算し，終わったら finish に渡す

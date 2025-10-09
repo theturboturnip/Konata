@@ -1,6 +1,8 @@
 let Op = require("./op").Op;
 let OpList = require("./op_list").OpList;
-let {ParsingOpList} = require("./op_list");
+const { CycleEvent } = require("./op");
+let {ParsingOpList, BigKeyValueStoreConfigDefault, BigKeyValueStore} = require("./op_list");
+const { CycleEventTypeMap } = require("./stage");
 let Dependency = require("./op").Dependency;
 let Stage = require("./stage").Stage;
 let StageLevelMap = require("./stage").StageLevelMap;
@@ -35,6 +37,13 @@ class OnikiriParser{
         /** @type {ParsingOpList} */
         this.parsingOpList_ = new ParsingOpList();
 
+        // This is a slight misuse of the BigKeyValueStore,
+        // which is intended to hold Op, but can actually hold anything.
+        // We use it to store Array<CycleEvent>
+        let config = new BigKeyValueStoreConfigDefault();
+        /** @type {BigKeyValueStore} */
+        this.cycleEventLists_ = new BigKeyValueStore(config);
+
         // パース完了
         this.complete_ = false;
 
@@ -43,6 +52,9 @@ class OnikiriParser{
 
         // ステージの出現順序を記録するマップ
         this.stageLevelMap_ = new StageLevelMap();
+
+        // Track the different types of events we encounter
+        this.cycleEventTypeMap_ = new CycleEventTypeMap();
 
         // 読み出し開始時間
         this.startTime_ = 0;
@@ -71,6 +83,7 @@ class OnikiriParser{
         this.closed_ = true;
         this.opListBody_.close();
         this.parsingOpList_.close();
+        this.cycleEventLists_.close();
         this.numWarning_ = 0;
     }
 
@@ -124,6 +137,11 @@ class OnikiriParser{
         return this.opListBody_.getParsedOpFromRID(rid, resolution);
     }
 
+    // Returns a list of events associated with the given cycle
+    getCycleEvents(cycle, resolution=0){
+        return this.cycleEventLists_.get(cycle, resolution, true);
+    }
+
     get lastID(){
         return this.opListBody_.parsedLastID;
     }
@@ -138,6 +156,10 @@ class OnikiriParser{
 
     get stageLevelMap(){
         return this.stageLevelMap_;
+    }
+
+    get cycleEventTypeMap(){
+        return this.cycleEventTypeMap_;
     }
 
     get lastCycle(){
@@ -529,6 +551,26 @@ class OnikiriParser{
         case "Kanata":
             return;
         case "C=":
+            return;
+        case "V":
+            // Creates an event at the current cycle
+            // Format
+            //      V   <EVENT_TYPE>    <LABEL>
+            if (args.length < 3 || args[1] == "") {
+                this.setError_("'V' command has invalid arguments.");
+                return;
+            }
+            let cycleEvent = new CycleEvent(args[1], args[2], this.curCycle_);
+            // See above - we're storing Array<CycleEvent> in here instead of Op,
+            // hence any TypeErrors your IDE may complain about,
+            // but storing Array<CycleEventList> here is A-OK.
+            let cycleEventList = this.cycleEventLists_.get(this.curCycle_, 0, false);
+            if (!cycleEventList) {
+                cycleEventList = [];
+            }
+            cycleEventList.push(cycleEvent);
+            this.cycleEventLists_.set(this.curCycle_, cycleEventList);
+            this.cycleEventTypeMap_.update(cycleEvent.eventType);
             return;
         }
 

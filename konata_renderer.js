@@ -2,6 +2,7 @@
 let Konata = require("./konata").Konata; // eslint-disable-line
 let Config = require("./config").Config; // eslint-disable-line
 let Op = require("./op").Op;             // eslint-disable-line
+let CycleEvent = require("./op").CycleEvent; // eslint-disable-line
 let Stage = require("./stage").Stage;    // eslint-disable-line
 
 
@@ -208,6 +209,20 @@ class KonataRenderer{
             return `hsl(${h},${s},${l})`;
         }
         return self.colorScheme_;
+    }
+
+    /**
+     * 
+     * @param {CycleEvent} event 
+     */
+    getEventColor_(event){
+        let self = this;
+
+        let eventTypeLevel = self.konata_.cycleEventTypeMap.get(event.eventType).appearance;
+
+        let color = this.style_.pipelinePane.stageBackgroundColor;
+        let h = ((250 - eventTypeLevel*color.hRateBegin)%360);
+        return `hsl(${h},${color.sBegin}%,${color.lBegin + 20}%)`;
     }
 
     /**
@@ -433,6 +448,18 @@ class KonataRenderer{
         return Math.floor(self.viewPos_.left + x / self.opW_);
     }
 
+    getPixelPosXFromCycle(cycle){
+        let self = this;
+        return (cycle - self.viewPos_.left) * self.opW_;
+    }
+
+    /** @returns {Array<CycleEvent>} */
+    getCycleEventsFromPixelPosX(x, resolution=0){
+        let self = this;
+        let cycle = Math.floor(self.viewPos_.left + x / self.opW_);
+        return self.konata_.getCycleEvents(cycle, resolution);   
+    }
+
 
     // ピクセル座標に対応するツールチップのテキストを作る
     getLabelToolTipText(y){
@@ -467,42 +494,50 @@ class KonataRenderer{
         // X 座標に対応したサイクル数を取得
         let cycle = self.getCycleFromPixelPosX(x);
         let text = `[${cycle}, ${op.id}] `;
-        if (cycle < op.fetchedCycle || cycle > op.retiredCycle) {
-            return text;
-        }
 
-        // ステージ名と，ステージに関連づけられたラベルを追加
         let stageText = "";
-        let first = true;
-        for (let laneName in op.lanes) {
-            for (let stage of op.lanes[laneName].stages) {
-                let start = stage.startCycle;
-                let end = stage.endCycle;
-                let length = end - start;
-                if (length == 0) {
-                    end += 1;   // 長さ0の場合，領域を広げて表示対象に
-                }
 
-                if (start <= cycle && cycle < end){
-                    if (!first) {
-                        text += ", ";
+        if (cycle >= op.fetchedCycle && cycle <= op.retiredCycle) {
+            let first = true;
+            // ステージ名と，ステージに関連づけられたラベルを追加
+            for (let laneName in op.lanes) {
+                for (let stage of op.lanes[laneName].stages) {
+                    let start = stage.startCycle;
+                    let end = stage.endCycle;
+                    let length = end - start;
+                    if (length == 0) {
+                        end += 1;   // 長さ0の場合，領域を広げて表示対象に
                     }
 
-                    // ステージ名と範囲
-                    // end は長さ0の時に +1 されてるので，元の値を使う
-                    text += `${stage.name}[${stage.endCycle - stage.startCycle}]`;
+                    if (start <= cycle && cycle < end){
+                        if (!first) {
+                            text += ", ";
+                        }
 
-                    // ステージに関連づけられたラベル
-                    if (stage.labels != "") {
-                        for (let line of stage.labels.split("\n")) {
-                            if (line != ""){
-                                stageText += `${stage.name}: ${line}\n`;
+                        // ステージ名と範囲
+                        // end は長さ0の時に +1 されてるので，元の値を使う
+                        text += `${stage.name}[${stage.endCycle - stage.startCycle}]`;
+
+                        // ステージに関連づけられたラベル
+                        if (stage.labels != "") {
+                            for (let line of stage.labels.split("\n")) {
+                                if (line != ""){
+                                    stageText += `${stage.name}: ${line}\n`;
+                                }
                             }
                         }
+                        first = false;
                     }
-                    first = false;
                 }
             }
+        }
+
+        // Add text from any pipeline events that are included
+        let cycleEvents = self.getCycleEventsFromPixelPosX(x, this.opResolution);
+        if (cycleEvents) {
+            cycleEvents.forEach((cycleEvent) => {
+                stageText += `${cycleEvent.eventType}: ${cycleEvent.label}\n`;
+            });
         }
 
         if (stageText != ""){
@@ -754,8 +789,7 @@ class KonataRenderer{
             top = 0;
         }
 
-        // タイルの描画
-        let skipRendering = false;
+        // Draw the background before the events and the ops
         for (let y = Math.floor(top); 
             y < top + self.viewHeight_; 
             y += (this.opH_ < 0.25) ? self.drawingInterval_ : 1
@@ -770,10 +804,37 @@ class KonataRenderer{
                     ctx.fillRect(0, fillTop, tile.clientWidth, this.opH_);
                 }
             }
-            if (skipRendering) {
-                continue;
+        }
+        
+        // For every cycle onscreen, draw the events.
+        // Draw them now so they're in front of the background but behind everything else.
+        // x is a cycle number, not a pixel number - just like y is an op number below
+        for (let x = Math.floor(left);
+            x < left + self.viewWidth_;
+            x += 1
+        ) {
+            let events = null;
+            try {
+                events = this.konata_.getCycleEvents(x, this.opResolution);
+            } catch(e) {
+                console.log(e);
+                return;
+            }
+            if (!events) {
+                // There may not be any events for this cycle
+                continue;   
             }
 
+            if (!self.drawEvents_(events, left, x, scale, ctx)) {
+                break;
+            }
+        }
+
+        // タイルの描画 (Draw operations)
+        for (let y = Math.floor(top); 
+            y < top + self.viewHeight_; 
+            y += (this.opH_ < 0.25) ? self.drawingInterval_ : 1
+        ) {
             let op = null;
             try {
                 op = self.getVisibleOp(y, this.opResolution);
@@ -788,7 +849,7 @@ class KonataRenderer{
             }
 
             if (!self.drawOp_(op, y - top + offsetY, left, left + self.viewWidth_, scale, ctx)) {
-                skipRendering = true;
+                break;
             }
         }
 
@@ -962,6 +1023,87 @@ class KonataRenderer{
         ctx.lineTo(pts[1][0], pts[1][1]);
         ctx.lineTo(pts[2][0], pts[2][1]);
         ctx.fill();
+    }
+
+    /**
+     * @param {Array<CycleEvent>} events 
+     * @param {number} leftmostCycle 
+     * @param {number} cycle 
+     * @param {number} scale 
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    drawEvents_(events, leftmostCycle, cycle, scale, ctx){
+        let self = this;
+
+        let l = cycle - leftmostCycle;
+        let r = l + 1;
+        let left = l * self.opW_ + self.PIXEL_ADJUST;
+        let right = r * self.opW_ + self.PIXEL_ADJUST;
+
+        if (self.canDrawDetailedly) {
+            // 枠内に表示の余地がある場合
+            ctx.strokeStyle = this.style_.pipelinePane.borderColor;
+
+            // At minimum the width of each event rectangle is 1/4rd of the cycle
+            let eventRelativeWidth = 1.0/Math.max(4, events.length);
+            // If there's exactly one event, it goes in the middle (starts at 0.5 - (1/4)/2)
+            // If there are two events, they start at (0.5 - (1/4))
+            // ...
+            // If there are four+ events, they start at 0.0
+            let firstEventRelativeX = Math.max(0.0, (0.5 - events.length * eventRelativeWidth/2));
+            events.forEach((cycleEvent, index) => {
+                let eventLeft  =      left + self.opW_ * (firstEventRelativeX + (eventRelativeWidth * index));
+                let eventRight = eventLeft + self.opW_ * eventRelativeWidth;
+                self.drawSingleEvent_(cycleEvent, eventLeft, eventRight, ctx);
+            });
+        }
+        else {
+            // 十分小さい場合は簡略化モード
+            if (self.colorScheme_ != "Auto" && 
+                self.colorScheme_ != "Unique" && 
+                self.colorScheme_ != "ThreadID" && 
+            !(self.colorScheme_ in self.config.customColorSchemes)
+            ) {
+                ctx.fillStyle = self.colorScheme_;
+            }
+            else{
+                ctx.fillStyle = "#b38989ff";
+            }
+
+            // 縮小率が高すぎると表示が小さくなりすぎて何も見えなくなるので，
+            // 最低1ピクセルは表示するように補正
+            if (right - left < 1) {
+                right = left + 1;
+            }
+
+            ctx.fillRect(left, 0, right - left, ctx.canvas.height);
+        }
+        return true;
+    }
+
+
+    /**
+     * @param {CycleEvent} cycleEvent 
+     * @param {number} eventLeft 
+     * @param {number} eventRight 
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    drawSingleEvent_(cycleEvent, eventLeft, eventRight, ctx){
+        let self = this;
+        let rect = [
+            eventLeft, 
+            0, 
+            eventRight - eventLeft, 
+            ctx.canvas.height
+        ];
+
+        ctx.fillStyle = self.getEventColor_(cycleEvent);
+        ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+
+        if (self.canDrawFrame){
+            ctx.lineWidth = this.style_.pipelinePane.borderWeight;
+            ctx.strokeRect(rect[0], rect[1], rect[2], rect[3]);
+        }
     }
 
     /**

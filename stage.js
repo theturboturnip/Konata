@@ -78,8 +78,45 @@ class Lane{
     }
 }
 
+class CycleEventType {
+    constructor(){
+        this.appearance = 0;    // The order of appearance
+    }
+}
+
+class CycleEventTypeMap{
+    constructor(){
+        /** @type {Object.<string, CycleEventType>} */
+        this.map_ = {};
+    }
+
+    get(eventType){
+        return this.map_[eventType];
+    }
+
+    has(eventType){
+        return (eventType in this.map_);
+    }
+
+    /**
+     * @param {string} eventType
+    */
+    update(eventType){
+        if (this.has(eventType)) {
+            // Nothing
+        }
+        else{
+            let level = new CycleEventType;
+            level.appearance = Object.keys(this.map_).length;
+            this.map_[eventType] = level;
+        }
+    }
+}
+
 module.exports.Stage = Stage;
 module.exports.StageLevel = StageLevel;
 module.exports.StageLevelMap = StageLevelMap;
 module.exports.Lane = Lane;
+module.exports.CycleEventType = CycleEventType;
+module.exports.CycleEventTypeMap = CycleEventTypeMap;
 

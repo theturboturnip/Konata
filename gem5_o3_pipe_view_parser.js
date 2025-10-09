@@ -1,6 +1,7 @@
 let Op = require("./op").Op;
 let OpList = require("./op_list").OpList;
 let {ParsingOpList} = require("./op_list");
+const { CycleEventTypeMap } = require("./stage");
 let Dependency = require("./op").Dependency;
 let Stage = require("./stage").Stage;
 let StageLevelMap = require("./stage").StageLevelMap;
@@ -81,6 +82,10 @@ class Gem5O3PipeViewParser{
         // ステージの出現順序を記録するマップ
         this.stageLevelMap_ = new StageLevelMap();
 
+        // Track the different types of events we encounter
+        // (i.e. none, this is included for compatability with OkikiriParser)
+        this.cycleEventTypeMap_ = new CycleEventTypeMap();
+        
         // 読み出し開始時間
         this.startTime_ = 0;
 
@@ -192,6 +197,11 @@ class Gem5O3PipeViewParser{
     getOpFromRID(rid, resolution=0){
         return this.opListBody_.getParsedOpFromRID(rid, resolution);
     }
+    
+    // Returns a list of events associated with the given cycle - gem5 doesn't have any
+    getCycleEvents(cycle, resolution=0){
+        return null;
+    }
 
     get lastID(){
         return this.opListBody_.parsedLastID;
@@ -208,6 +218,10 @@ class Gem5O3PipeViewParser{
 
     get stageLevelMap(){
         return this.stageLevelMap_;
+    }
+
+    get cycleEventTypeMap(){
+        return this.cycleEventTypeMap_;
     }
 
     /** @returns {number} */

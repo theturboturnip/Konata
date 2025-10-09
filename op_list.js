@@ -833,3 +833,7 @@ class ParsingOpList {
 
 module.exports.OpList = OpList;
 module.exports.ParsingOpList = ParsingOpList;
+module.exports.BigKeyValueStore = BigKeyValueStore;
+module.exports.BigKeyValueStoreConfigDefault = BigKeyValueStoreConfigDefault;
+module.exports.BigKeyValueStoreConfigLarge = BigKeyValueStoreConfigLarge;
+module.exports.BigKeyValueStoreConfigTest = BigKeyValueStoreConfigTest;
