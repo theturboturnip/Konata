@@ -15,15 +15,15 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "bootstrap": "^4.6.0",
     "jquery": "^3.6.0",
     "riot": "^3.13.2",
-    "riotcontrol": "^0.0.3",
-    "@electron/remote": "^2.0.8"
+    "riotcontrol": "^0.0.3"
   },
   "devDependencies": {
-    "electron": "^23.0.0",
-    "electron-packager": "^15.4.0",
+    "electron": "^23.3.13",
+    "electron-packager": "^15.5.2",
     "license-checker": "^25.0.1"
   }
 }
