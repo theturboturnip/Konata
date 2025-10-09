@@ -1,6 +1,6 @@
 {
   "name": "konata",
-  "version": "0.39.0",
+  "version": "0.39.0-sws35",
   "description": "Konata: a instruction pipeline visualizer for Onikiri2 and gem5",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,8 @@
   },
   "author": "Ryota Shioya <shioya@ci.i.u-tokyo.ac.jp>",
   "contributors": [
-    "Kojiro Izuoka"
+    "Kojiro Izuoka",
+    "Samuel W. Stark"
   ],
   "repository": {
     "url": "https://github.com/shioyadan/Konata"
