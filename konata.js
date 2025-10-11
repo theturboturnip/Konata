@@ -118,6 +118,11 @@ class Konata{
         return this.parser_ ? this.parser_.getCycleEvents(cycle, resolution) : null;
     }
 
+    /** @returns {string[]} */
+    getAllCycleEventTypes() {
+        return this.parser_ ? this.parser_.getAllCycleEventTypes() : [];
+    }
+
     get lastID(){
         return this.parser_ ? this.parser_.lastID : 0;
     }

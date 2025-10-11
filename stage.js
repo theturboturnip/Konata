@@ -86,16 +86,21 @@ class CycleEventType {
 
 class CycleEventTypeMap{
     constructor(){
-        /** @type {Object.<string, CycleEventType>} */
-        this.map_ = {};
+        /** @type {Map.<string, CycleEventType>} */
+        this.map_ = new Map();
+    }
+
+    /** @return {Array.<string>} */
+    keys() {
+        return Array.from(this.map_.keys());
     }
 
     get(eventType){
-        return this.map_[eventType];
+        return this.map_.get(eventType);
     }
 
     has(eventType){
-        return (eventType in this.map_);
+        return this.map_.has(eventType);
     }
 
     /**
@@ -107,8 +112,8 @@ class CycleEventTypeMap{
         }
         else{
             let level = new CycleEventType;
-            level.appearance = Object.keys(this.map_).length;
-            this.map_[eventType] = level;
+            level.appearance = this.map_.size;
+            this.map_.set(eventType, level);
         }
     }
 }

@@ -203,6 +203,11 @@ class Gem5O3PipeViewParser{
         return null;
     }
 
+    getAllCycleEventTypes(){
+        return [];
+    }
+
+
     get lastID(){
         return this.opListBody_.parsedLastID;
     }

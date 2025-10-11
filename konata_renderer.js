@@ -79,6 +79,9 @@ class KonataRenderer{
         this.labelFontSize_ = 12;
         this.stageFontSize_ = 12;
 
+        // List of CycleEvent eventType to hide
+        this.hiddenCycleEventTypes = [];
+
         // Styles of Konata renderer defined by JSON
         /** @type {Object} */
         this.style_ = null;
@@ -1039,6 +1042,8 @@ class KonataRenderer{
         let r = l + 1;
         let left = l * self.opW_ + self.PIXEL_ADJUST;
         let right = r * self.opW_ + self.PIXEL_ADJUST;
+
+        events = events.filter((cycleEvent) => !this.hiddenCycleEventTypes.includes(cycleEvent.eventType));
 
         if (self.canDrawDetailedly) {
             // 枠内に表示の余地がある場合

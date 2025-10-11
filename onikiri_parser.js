@@ -142,6 +142,10 @@ class OnikiriParser{
         return this.cycleEventLists_.get(cycle, resolution, true);
     }
 
+    getAllCycleEventTypes() {
+        return this.cycleEventTypeMap_.keys();
+    }
+
     get lastID(){
         return this.opListBody_.parsedLastID;
     }

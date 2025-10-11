@@ -201,6 +201,19 @@ function installMainMenu(store, dispatcher){
                             }),
                     },
                     {
+                        label: "Visible events",
+                        enabled: tab ? true : false,
+                        submenu: tab ? tab.konata.getAllCycleEventTypes().
+                            map(function(eventType){
+                                return {
+                                    label: eventType,
+                                    type: "checkbox",
+                                    checked: !tab.renderer.hiddenCycleEventTypes.includes(eventType), 
+                                    click: function(){rc.trigger(ACTION.KONATA_TOGGLE_EVENT_TYPE_VISIBLE, tabID, eventType);}
+                                };
+                            }) : []
+                    },
+                    {
                         label: "Lane",
                         submenu: [
                             {
@@ -360,6 +373,19 @@ function makePopupTabMenuTemplate(store, dispatcher, tabID){
                         click: function(){rc.trigger(ACTION.KONATA_CHANGE_COLOR_SCHEME, tabID, color);}
                     };
                 }),
+        },
+        {
+            label: "Visible events",
+            enabled: tab ? true : false,
+            submenu: tab ? tab.konata.getAllCycleEventTypes().
+                map(function(eventType){
+                    return {
+                        label: eventType,
+                        type: "checkbox",
+                        checked: !tab.renderer.hiddenCycleEventTypes.includes(eventType), 
+                        click: function(){rc.trigger(ACTION.KONATA_TOGGLE_EVENT_TYPE_VISIBLE, tabID, eventType);}
+                    };
+                }) : []
         },
         {
             label: "Lane",

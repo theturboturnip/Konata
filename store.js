@@ -40,6 +40,7 @@ const ACTION = {
     KONATA_SYNC_SCROLL: 63,             // 同期スクロール
     KONATA_CHANGE_UI_COLOR_THEME: 64,   // UI のカラーテーマの変更
     KONATA_CHANGE_SETTINGS: 65,         // 設定の変更
+    KONATA_TOGGLE_EVENT_TYPE_VISIBLE: 66, // Toggle the visibility of a CycleEvent.eventType for the current tab
 
     KONATA_ZOOM: 73,        // 拡大/縮小
 
@@ -828,6 +829,24 @@ class Store{
             self.config.colorScheme = scheme;
             tab.colorScheme = scheme;
             tab.renderer.changeColorScheme(scheme);
+            self.trigger(CHANGE.PANE_CONTENT_UPDATE);
+            self.trigger(CHANGE.MENU_UPDATE);
+        });
+
+        // Toggle the visibility of a CycleEvent.eventType for the current tab
+        self.on(ACTION.KONATA_TOGGLE_EVENT_TYPE_VISIBLE, function(tabID, eventType){
+            if (!(tabID in self.tabs)) {
+                return;
+            }
+            let tab = self.tabs[tabID];
+            let idxInHidden = tab.renderer.hiddenCycleEventTypes.indexOf(eventType);
+            if (idxInHidden > -1) {
+                // It's hidden, unhide it
+                tab.renderer.hiddenCycleEventTypes.splice(idxInHidden, 1 /* remove exactly one element */);
+            } else {
+                // It's visible, hide it
+                tab.renderer.hiddenCycleEventTypes.push(eventType);
+            }
             self.trigger(CHANGE.PANE_CONTENT_UPDATE);
             self.trigger(CHANGE.MENU_UPDATE);
         });
