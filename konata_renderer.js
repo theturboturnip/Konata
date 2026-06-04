@@ -1137,16 +1137,23 @@ class KonataRenderer{
         let right = r * self.opW_ + self.PIXEL_ADJUST;
 
         let stageLevelMap = this.konata_.stageLevelMap;
-        let laneNum = stageLevelMap.laneNum;
+      let laneNum = stageLevelMap.laneNum;
+      console.log(laneNum);
 
         if (self.canDrawDetailedly) {
             // 枠内に表示の余地がある場合
             ctx.strokeStyle = this.style_.pipelinePane.borderColor;
 
-            for (let laneName in op.lanes) {
+            let keys = [];
+            for (let key in op.lanes) {
+                keys.push(key);
+            }
+            keys = keys.sort();
+            for (let i = 0, len = keys.length; i < len; i++) {
+                let laneName = keys[i];
                 let laneTop = 
                 self.splitLanes_ ? 
-                    (h + stageLevelMap.getLaneID(laneName) / laneNum) : h;  // logical pos
+                    (h + i / (laneNum - 1)) : h;  // logical pos
                 self.drawLane_(op, laneTop, startCycle, endCycle, scale, ctx, laneName);
             }
             /*
@@ -1207,7 +1214,7 @@ class KonataRenderer{
         ctx.font = self.stageFont_;
 
         let lane = op.lanes[laneName].stages;
-        let top = h * self.opH_ + self.PIXEL_ADJUST;
+        let top = h * self.opH_; // + self.PIXEL_ADJUST;
         for (let i = 0, len = lane.length; i < len; i++) {
             let stage = lane[i];
             if (stage.endCycle == 0) {
@@ -1230,10 +1237,11 @@ class KonataRenderer{
             let right = logRight * self.opW_ + self.PIXEL_ADJUST;
             let rect = [
                 left, 
-                top + self.lane_height_margin_, 
+                top, // + self.lane_height_margin_, 
                 right - left, 
-                (self.laneH_ - self.lane_height_margin_ * 2)
+                (self.laneH_) // - self.lane_height_margin_ * 2)
             ];
+          console.log(rect);
 
             let grad = ctx.createLinearGradient(0, top, 0, top + self.laneH_);
             grad.addColorStop(0, self.getStageColor_(laneName, stage.name, true, op));
